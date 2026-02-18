@@ -15,7 +15,8 @@ connectDB();
 
 // Cấu hình CORS
 app.use(cors({
-  origin: '*', // Điền một tên miền cụ thể (ví dụ: 'http://localhost:3000') nếu bạn muốn giới hạn truy cập
+  origin: 'http://localhost:3000', // Điền một tên miền cụ thể (ví dụ: 'http://localhost:3000') nếu bạn muốn giới hạn truy cập
+  credentials: true, // Cho phép gửi cookie từ client
   methods: ['GET', 'POST', 'PATCH', 'DELETE'], // Các phương thức HTTP được phép
   allowedHeaders: ['Content-Type', 'Authorization'], // Các header được phép
 }));
