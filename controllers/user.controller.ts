@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import AccountUser from '../models/account-user.model';
 import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
+import { AccountRequest } from '../interfaces/request.interface';
 
 export const registerPost = async (req: Request, res: Response) => {
   const { fullName, email, password } = req.body;
@@ -83,5 +84,22 @@ export const loginPost = async (req: Request, res: Response) => {
   res.json({
     code: "success",
     message: "Đăng nhập thành công!"
+  });
+}
+
+export const profilePatch = async (req: AccountRequest, res: Response) => {
+  if(req.file) {
+    req.body.avatar = req.file.path; // Lưu đường dẫn ảnh vào trường avatar của tài khoản
+  } else {
+    delete req.account.avatar; // Nếu không có ảnh mới, xóa trường avatar để giữ nguyên ảnh cũ
+  }
+
+  await AccountUser.updateOne({
+    _id: req.account._id
+  }, req.body);
+
+  res.json({
+    code: "success",
+    message: "Cập nhật thông tin cá nhân thành công!"
   });
 }
