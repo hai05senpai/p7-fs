@@ -3,6 +3,7 @@ import AccountCompany from "../models/account-company.model";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { AccountRequest } from '../interfaces/request.interface';
+import Job from "../models/job.model";
 
 export const registerPost = async (req: Request, res: Response) => {
   const { companyName, email, password } = req.body;
@@ -101,5 +102,29 @@ export const profilePatch = async (req: AccountRequest, res: Response) => {
   res.json({
     code: "success",
     message: "Cập nhật thông tin công ty thành công!"
+  });
+}
+
+export const createJobPost = async (req: AccountRequest, res: Response) => {
+  req.body.companyId = req.account.id;
+  req.body.salaryMin = req.body.salaryMin ? parseInt(req.body.salaryMin) : 0;
+  req.body.salaryMax = req.body.salaryMax ? parseInt(req.body.salaryMax) : 0;
+  req.body.technologies = req.body.technologies ? req.body.technologies.split(", ") : [];
+  req.body.images = [];
+
+  // Xử lý mảng images
+  if(req.files) {
+    for (const file of req.files as any[]) {
+      req.body.images.push(file.path);
+    }
+  }
+  // Hết Xử lý mảng images
+
+  const newRecord = new Job(req.body);
+  await newRecord.save();
+  
+  res.json({
+    code: "success",
+    message: "Tạo công việc thành công!"
   });
 }
