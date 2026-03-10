@@ -268,3 +268,24 @@ export const editJobPatch = async (req: AccountRequest, res: Response) => {
     });
   }
 }
+
+export const deleteJobDel = async (req: AccountRequest, res: Response) => {
+  try {
+    const id = req.params.id;
+
+    await Job.deleteOne({
+      _id: id,
+      companyId: req.account.id
+    });
+
+    res.json({
+      code: "success",
+      message: "Xóa công việc thành công!"
+    });
+  } catch (error) {
+    res.json({
+      code: "error",
+      message: "Xóa công việc thất bại!"
+    });
+  }
+}
