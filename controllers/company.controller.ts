@@ -289,3 +289,47 @@ export const deleteJobDel = async (req: AccountRequest, res: Response) => {
     });
   }
 }
+
+export const listCompany = async (req: Request, res: Response) => {
+  let limitItems = 10;
+  if(req.query.limit){
+    limitItems = parseInt(req.query.limit as string);
+  }
+  const companyList = await AccountCompany
+    .find()
+    .limit(limitItems)
+    .sort({ createdAt: "desc" });
+
+  const companyListFinal = [];
+  for(const company of companyList) {
+    const dataFinal = {
+      id: company._id,
+      companyName: company.companyName,
+      logo: company.logo,
+      cityName: "",
+      totalJob: 0
+    };
+
+    // Thành phố
+    if(company.city) {
+      const city = await City.findOne({
+        _id: company.city
+      });
+      dataFinal.cityName = `${city ? city.name : "Đang cập nhật"}`;
+    }
+
+    // Tổng công việc
+    const totalJob = await Job.countDocuments({
+      companyId: company.id
+    });
+    dataFinal.totalJob = totalJob;
+
+    companyListFinal.push(dataFinal);
+  }
+
+  res.json({
+    code: "success",
+    message: "Lấy danh sách công ty thành công!",
+    companyList: companyListFinal
+  });
+}
