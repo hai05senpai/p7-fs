@@ -43,6 +43,10 @@ export const search = async (req: Request, res: Response) => {
       find.position = req.query.position;
     }
 
+    if(req.query.workingFrom) {
+      find.workingFrom = req.query.workingFrom;
+    }
+
     const jobs = await Job
       .find(find)
       .sort({
