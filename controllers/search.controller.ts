@@ -34,6 +34,11 @@ export const search = async (req: Request, res: Response) => {
       find.companyId = company?.id.toString();
     }
 
+    if(req.query.keyword) {
+      const keywordRegex = new RegExp(req.query.keyword.toString(), 'i'); // 'i' để tìm kiếm không phân biệt hoa thường
+      find.title = keywordRegex;
+    }
+
     const jobs = await Job
       .find(find)
       .sort({
