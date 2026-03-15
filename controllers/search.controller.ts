@@ -6,6 +6,7 @@ import City from '../models/city.model';
 
 export const search = async (req: Request, res: Response) => {
   const dataFinal = [];
+  let totalPage = 1;
   if(Object.keys(req.query).length > 0) {
     const find: any = {};
     if(req.query.language) {
@@ -47,11 +48,24 @@ export const search = async (req: Request, res: Response) => {
       find.workingFrom = req.query.workingFrom;
     }
 
+    //Phân trang
+    const page = parseInt(req.query.page as string) || 1; // Trang hiện tại, mặc định là 1
+    const limit = 2; // Số lượng bản ghi trên mỗi trang
+    const totalJobs = await Job.countDocuments(find); // Tổng số lượng việc làm phù hợp với điều kiện tìm kiếm
+    totalPage = Math.ceil(totalJobs / limit); // Tổng số trang
+
+    // Kiểm tra nếu page vượt quá tổng số trang, trả về trang cuối cùng
+    const currentPage = page > totalPage ? totalPage : page;
+    const skip = (currentPage - 1) * limit; // Số lượng bản ghi cần bỏ qua
+    // Hêt phân trang
+
     const jobs = await Job
       .find(find)
       .sort({
         createdAt: "desc" 
       })
+      .limit(limit)
+      .skip(skip)
 
     for(const job of jobs) {
       const itemFinal = {
@@ -90,6 +104,7 @@ export const search = async (req: Request, res: Response) => {
   res.json({
     code: "success",
     message: 'Tìm kiếm thành công!',
-    jobs: dataFinal
+    jobs: dataFinal,
+    totalPage: totalPage,
   });
 }
