@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Job from "../models/job.model";
 import AccountCompany from "../models/account-company.model";
+import CV from "../models/cv.model";
 
 export const detail = async (req: Request, res: Response) => {
   try {
@@ -62,4 +63,22 @@ export const detail = async (req: Request, res: Response) => {
       message: "Lấy chi tiết công việc thất bại",
     });
   }
+}
+
+export const applyPost = async (req: Request, res: Response) => {
+  if(!req.file) {
+    return res.json({
+      code: "error",
+      message: "Vui lòng tải lên file CV định dạng PDF!",
+    });
+  }
+  req.body.fileCV = req.file.path;
+
+  const newRecord = new CV(req.body);
+  await newRecord.save();
+
+  res.json({
+    code: "success",
+    message: "Ứng tuyển thành công",
+  });
 }
