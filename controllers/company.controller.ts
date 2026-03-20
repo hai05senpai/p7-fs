@@ -354,3 +354,77 @@ export const listCompany = async (req: Request, res: Response) => {
     totalPage: totalPages,
   });
 }
+
+export const detail = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    
+    const companyDetail = await AccountCompany.findOne({
+      _id: id
+    });
+
+    if(!companyDetail) {
+      res.json({
+        code: "error",
+        message: "Công ty không tồn tại trong hệ thống!"
+      });
+      return;
+    }
+
+    // Thông tin công ty
+    const companyDetailFinal = {
+      id: companyDetail.id,
+      companyName: companyDetail.companyName,
+      logo: companyDetail.logo,
+      address: companyDetail.address,
+      companyModel: companyDetail.companyModel,
+      companyEmployees: companyDetail.companyEmployees,
+      workingTime: companyDetail.workingTime,
+      workOvertime: companyDetail.workOvertime,
+      description: companyDetail.description,
+    };
+
+    // Danh sách công việc
+    const jobs = await Job
+      .find({
+        companyId: companyDetail.id
+      })  
+      .sort({
+        createdAt: "desc" 
+      });
+
+    const city = await City.findOne({
+      _id: companyDetail.city
+    });
+
+    const dataFinal = [];
+  
+    for(const job of jobs) {
+      dataFinal.push({
+        id: job._id,
+        companyLogo: companyDetail.logo,
+        title: job.title,
+        companyName: companyDetail.companyName,
+        salaryMin: job.salaryMin,
+        salaryMax: job.salaryMax,
+        position: job.position,
+        workingFrom: job.workingFrom,
+        cityName: city ? city.name : "Đang cập nhật",
+        technologies: job.technologies
+      });
+    }
+
+    res.json({
+      code: "success",
+      message: "Lấy thông tin công ty thành công!",
+      company: companyDetailFinal,
+      jobs: dataFinal
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      code: "error",
+      message: "Lấy thông tin công ty thất bại!"
+    });
+  }
+}

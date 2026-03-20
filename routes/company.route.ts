@@ -29,4 +29,6 @@ router.delete('/job/delete/:id', authMiddleware.verifyTokenCompany, companyContr
 
 router.get('/list', companyController.listCompany);
 
+router.get('/detail/:id', companyController.detail);
+
 export default router;
