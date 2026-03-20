@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { AccountRequest } from '../interfaces/request.interface';
 import Job from "../models/job.model";
 import City from "../models/city.model";
+import CV from "../models/cv.model";
 
 export const registerPost = async (req: Request, res: Response) => {
   const { companyName, email, password } = req.body;
@@ -427,4 +428,55 @@ export const detail = async (req: Request, res: Response) => {
       message: "Lấy thông tin công ty thất bại!"
     });
   }
+}
+
+export const listCV = async (req: AccountRequest, res: Response) => {
+  const companyId = req.account.id;
+  
+  const listJob = await Job.find({
+    companyId: companyId
+  });
+
+  const listJobId = listJob.map(job => job.id);
+
+  const listCV = await CV
+    .find({
+      jobId: { $in: listJobId }
+    }).sort({
+      createdAt: "desc"
+    });
+
+  const cvListFinal = [];
+  for(const cv of listCV) {
+    const dataFinal = {
+      id: cv.id,
+      jobTitle: "",
+      fullName: cv.fullName,
+      email: cv.email,
+      phone: cv.phone,
+      jobSalaryMin: 0,
+      jobSalaryMax: 0,
+      jobPosition: "",
+      jobWorkingFrom: "",
+      viewed: cv.viewed,
+      status: cv.status,
+    };
+    const job = await Job.findOne({
+      _id: cv.jobId
+    });
+    if(job) {
+      dataFinal.jobTitle = `${job.title}`;
+      dataFinal.jobSalaryMin = job.salaryMin || 0;
+      dataFinal.jobSalaryMax = job.salaryMax || 0;
+      dataFinal.jobPosition = `${job.position}`;
+      dataFinal.jobWorkingFrom = `${job.workingFrom}`;
+    }
+    cvListFinal.push(dataFinal);
+  }
+
+  res.json({
+    code: "success",
+    message: "Lấy danh sách CV thành công!",
+    cvList: cvListFinal
+  });
 }
