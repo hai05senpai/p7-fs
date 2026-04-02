@@ -33,4 +33,7 @@ router.get('/detail/:id', companyController.detail);
 
 router.get('/cv/list', authMiddleware.verifyTokenCompany, companyController.listCV);
 
+router.get('/cv/detail/:id', authMiddleware.verifyTokenCompany, companyController.detailCV);
+
+
 export default router;
