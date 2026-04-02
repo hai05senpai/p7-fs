@@ -548,3 +548,53 @@ export const detailCV = async (req: AccountRequest, res: Response) => {
     })
   }
 }
+
+export const changeStatusPatch = async (req: AccountRequest, res: Response) => {
+  try {
+    const companyId = req.account.id;
+    const status = req.body.action;
+    const cvId = req.body.id;
+
+    const infoCV = await CV.findOne({
+      _id: cvId
+    })
+
+    if(!infoCV) {
+      res.json({
+        code: "error",
+        message: "Thất bại!"
+      })
+      return;
+    }
+
+    const infoJob = await Job.findOne({
+      _id: infoCV.jobId,
+      companyId: companyId
+    })
+
+    if(!infoJob) {
+      res.json({
+        code: "error",
+        message: "Thất bại!"
+      })
+      return;
+    }
+
+    await CV.updateOne({
+      _id: cvId
+    }, {
+      status: status
+    })
+
+    res.json({
+      code: "success",
+      message: "Thành công!"
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      code: "error",
+      message: "Id không hợp lệ!"
+    })
+  }
+}

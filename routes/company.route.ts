@@ -35,5 +35,7 @@ router.get('/cv/list', authMiddleware.verifyTokenCompany, companyController.list
 
 router.get('/cv/detail/:id', authMiddleware.verifyTokenCompany, companyController.detailCV);
 
+router.patch('/cv/change-status', authMiddleware.verifyTokenCompany, companyController.changeStatusPatch);
+
 
 export default router;
